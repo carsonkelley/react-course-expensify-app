@@ -1,6 +1,6 @@
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import { startAddExpense, addExpense, editExpense, removeExpense, startRemoveExpense, setExpenses, startSetExpenses } from '../../actions/expenses';
+import { startAddExpense, addExpense, editExpense, startEditExpense, removeExpense, startRemoveExpense, setExpenses, startSetExpenses } from '../../actions/expenses';
 import expenses from '../fixtures/expenses';
 import database from '../../firebase/firebase';
 
@@ -48,6 +48,53 @@ test('should setup edit expense action object', () => {
             note: 'update to note'
         }
     });
+});
+
+test('should edit expenses from firebase', (done) => {
+    const store = createMockStore({});
+    const id = expenses[0].id;
+    const updates = { note: 'my breath smelled' };
+    store.dispatch(startEditExpense(id, updates)).then(() => {
+        const actions = store.getActions();
+        expect(actions[0]).toEqual({
+            type: 'EDIT_EXPENSE',
+            id,
+            updates
+        });
+
+        return database.ref(`expenses/${id}`).once('value');
+    }).then((snapshot) => {
+        expect(snapshot.val()).toEqual({
+            description: expenses[0].description,
+            note: expenses[0].note,
+            amount: expenses[0].amount,
+            createdAt: expenses[0].createdAt,
+            ...updates
+        });
+        done();
+    });
+    // const store = createMockStore({});
+    // const expenseData = {
+    //     description: 'Mouse', 
+    //     amount: 3000,
+    //     note: 'This one is better',
+    //     createdAt: 1000
+    // }
+    // store.dispatch(startAddExpense(expenseData)).then(() => {
+    //     const actions = store.getActions();
+    //     expect(actions[0]).toEqual({
+    //         type: 'ADD_EXPENSE',
+    //         expense: {
+    //             id: expect.any(String),
+    //             ...expenseData
+    //         }
+    //     });
+
+    //     return database.ref(`expenses/${actions[0].expense.id}`).once('value');
+    // }).then((snapshot) => {
+    //     expect(snapshot.val()).toEqual(expenseData);
+    //     done();
+    // });
 });
 
 test('should setup add expense action object with provided values', () => {
