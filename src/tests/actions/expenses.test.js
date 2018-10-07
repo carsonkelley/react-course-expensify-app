@@ -64,37 +64,9 @@ test('should edit expenses from firebase', (done) => {
 
         return database.ref(`expenses/${id}`).once('value');
     }).then((snapshot) => {
-        expect(snapshot.val()).toEqual({
-            description: expenses[0].description,
-            note: expenses[0].note,
-            amount: expenses[0].amount,
-            createdAt: expenses[0].createdAt,
-            ...updates
-        });
+        expect(snapshot.val().note).toBe(updates.note);
         done();
     });
-    // const store = createMockStore({});
-    // const expenseData = {
-    //     description: 'Mouse', 
-    //     amount: 3000,
-    //     note: 'This one is better',
-    //     createdAt: 1000
-    // }
-    // store.dispatch(startAddExpense(expenseData)).then(() => {
-    //     const actions = store.getActions();
-    //     expect(actions[0]).toEqual({
-    //         type: 'ADD_EXPENSE',
-    //         expense: {
-    //             id: expect.any(String),
-    //             ...expenseData
-    //         }
-    //     });
-
-    //     return database.ref(`expenses/${actions[0].expense.id}`).once('value');
-    // }).then((snapshot) => {
-    //     expect(snapshot.val()).toEqual(expenseData);
-    //     done();
-    // });
 });
 
 test('should setup add expense action object with provided values', () => {
